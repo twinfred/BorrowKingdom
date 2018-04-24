@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Borrow Kingdom Sign In</title>
+</head>
+<body>
+    <div id="wrapper">
+        <div id="nav-bar">
+            <div class="loginreg-logo">Borrow Kingdom Logo</div>
+        </div>
+        <div class="login-reg-box">
+            <h2>Sign In</h2>
+            {% if messages %}
+                <ul class="message">
+                    {% for message in messages %}
+                    <li{% if message.tags%} class="{{message.tags}}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <form action="/login_user" method="post">
+                {% csrf_token %}
+                <table class="login-reg-table">
+                    <tr>
+                        <td><input type="text" name="email" id="email" placeholder="Email"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="password" name="password" id="password" placeholder="Password"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="submit" value="Sign In"></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

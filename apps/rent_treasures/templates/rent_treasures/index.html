@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Borrow Kingdom</title>
+</head>
+<body>
+    <div id="wrapper">
+        <div id="nav-bar">
+            <div class="nav-logo">Borrow Kingdom Logo</div>
+            <ul class="nav-right">
+                <li class="nav-item-right"><a href="#">Browse Treasures</a></li>
+                {% if request.session.user_id %}
+                <li class="nav-item-right"><a href="#">Account</a></li>
+                <li class="nav-item-right"><a href="#">Requests</a></li>
+                <li class="nav-item-right"><a href="#">Listings</a></li>
+                <li class="nav-item-right"><a href="#">Orders</a></li>
+                <li class="nav-item-right"><a href="#">Log Out</a></li>
+                {% else %}
+                <li class="nav-item-right"><a href="/login">Sign In</a></li>
+                <li class="nav-item-right"><a href="/register">Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
