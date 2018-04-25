@@ -79,9 +79,7 @@ def payment_conf(request):
 
 # POST Requests
 def create_user(request):
-    if not 'user_id' in request.session:
-        return redirect('/')
-    elif request.method != 'POST':
+    if request.method != 'POST':
         return redirect('/')
     errors = User.objects.reg_validation(request.POST)
     if errors:
@@ -94,9 +92,7 @@ def create_user(request):
         return redirect('/dashboard')
 
 def login_user(request):
-    if not 'user_id' in request.session:
-        return redirect('/')
-    elif request.method != 'POST':
+    if request.method != 'POST':
         return redirect('/')
     errors = User.objects.login_validation(request.POST)
     if errors:
