@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{treasure.name}}</title>
+</head>
+<body>
+    <div id="wrapper">
+        <div id="nav-bar">
+            <div class="nav-logo">Borrow Kingdom Logo</div>
+            <ul class="nav-right">
+                {% if request.session.user_id %}
+                <li class="nav-item-right"><a href="/">Browse Treasures</a></li>
+                <li class="nav-item-right"><a href="/dashboard">Dashboard</a></li>
+                <li class="nav-item-right"><a href="/logout">Log Out</a></li>
+                {% else %}
+                <li class="nav-item-right"><a href="/login">Sign In</a></li>
+                <li class="nav-item-right"><a href="/register">Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+        <div id="main-content">
+            <h1>{{treasure.name}}</h1>
+            <h3>Description:</h3>
+            <p>{{treasure.desc}}</p>
+            <p>Daily Rate: ${{treasure_cost}}</p>
+            <p>Owner: {{treasure.uploader.first_name}} {{treasure.uploader.last_name}}</p>
+            <p>Location: {{treasure.pickup_city}}</p>
+            {% if user.id == treasure.uploader.id%}
+            <a href="/treasure/{{treasure.id}}/edit"><button>Edit</button></a> <a href="/delete/{{treasure.id}}"><button>Delete</button></a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

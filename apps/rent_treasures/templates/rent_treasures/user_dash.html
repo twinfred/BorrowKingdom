@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{user.first_name}}'s Dashboard | Borrow Kingdom</title>
+</head>
+<body>
+    <div id="wrapper">
+        <div id="nav-bar">
+            <div class="nav-logo">Borrow Kingdom Logo</div>
+            <ul class="nav-right">
+                <li class="nav-item-right"><a href="/">Browse Treasures</a></li>
+                <li class="nav-item-right"><a href="/dashboard">Dashboard</a></li>
+                <li class="nav-item-right"><a href="/logout">Log Out</a></li>
+            </ul>
+        </div>
+            <h3>My Requests</h3>
+            {% if my_requests %}
+            <table class="request-table">
+                <th>
+                    <td>Treasure Name</td>
+                    <td>Request Date</td>
+                    <td>Pickup Date</td>
+                    <td>Status</td>
+                    <td>Actions</td>
+                </th>
+                {% for request in my_requests %}
+                <tr>
+                    <td>{{request.treasure.name}}</td>
+                    <td>{{request.request_date}}</td>
+                    <td>{% if request.status == 0 %}Pending{% elif request.status == 1 %}<span style="color: green">Accepted</span>{% else %}<span style="color: red">Declined</span>{% endif %}</td>
+                    <td></td>
+                    <td><a href="/edit/{{treasure.id}}"><button>Edit</button></a><a href="/requests"><button>View Requests</button></a><a href="/delete/{{treasure.id}}"><button>Delete</button></a></td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% else %}
+            <p>You haven't made any requests yet.</p>
+            {% endif %}
+            <a href="/"><button>Browse Treasures</button></a>
+            <div class="dash-table">
+            <h3>My Treasures</h3>
+            {% if my_treasures %}
+            <table class="treasure-table">
+                <tr>
+                    <th>Treasure Name</th>
+                    <th>Daily Rate</th>
+                    <th>Status</th>
+                    <th>Requests</th>
+                    <th>Actions</th>
+                </tr>
+                {% for treasure in my_treasures %}
+                <tr>
+                    <td><a href="/treasure/{{treasure.id}}">{{treasure.name}}</a></td>
+                    <td>${{treasure.daily_rate}}</td>
+                    <td>{% if treasure.status == 0 %}<span style="color:green">Available</span>{% else %}<span style="color: red">Unavailable</span>{% endif%}</td>
+                    <td>###</td>
+                    <td><a href="/treasure/{{treasure.id}}/edit"><button>Edit</button></a> <a href="/treasure/{{treasure.id}}/requests"><button>View Requests</button></a> <a href="/delete/{{treasure.id}}"><button>Delete</button></a></td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% else %}
+            <p>You don't have any treasures.</p>
+            {% endif %}
+            <a href="/treasure/new"><button>Add Treasure</button></a>
+            </div>
+        <div class="dash-table">
+        </div>
+    </div>
+</body>
+</html>

@@ -27,6 +27,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Stripe Keys
+STRIPE_PUBLIC_KEY = "pk_test_HVh00GrG1ub4Ztc7Afxo4yGr"
+STRIPE_SECRET_KEY = "sk_test_STXIdVMVt0z3sVk2si4rVo5E"
 
 # Application definition
 

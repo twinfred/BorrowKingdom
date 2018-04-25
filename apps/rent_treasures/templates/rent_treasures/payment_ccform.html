@@ -1,0 +1,13 @@
+<h2>Checkout</h2>
+<form action="/checkout" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="request_id" value={{new_request.id}}>
+    <script src="https://checkout.stripe.com/checkout.js"
+        class="stripe-button"
+        data-key={{stripe_key}}
+        data-amount={{new_request.amount}}
+        data-name="Borrow Kingdom"
+        data-description={{new_request.treasure.name}}
+        data-currency="usd">
+    </script>
+</form>
