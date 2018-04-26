@@ -23,13 +23,67 @@
         </div>
         <div id="main-content">
             <h1>{{treasure.name}}</h1>
+            <img src="{{treasure.primary_img.url}}" alt="{{treasure.name}}" width="200px">
             <h3>Description:</h3>
             <p>{{treasure.desc}}</p>
-            <p>Daily Rate: ${{treasure_cost}}</p>
-            <p>Owner: {{treasure.uploader.first_name}} {{treasure.uploader.last_name}}</p>
-            <p>Location: {{treasure.pickup_city}}</p>
-            {% if user.id == treasure.uploader.id%}
-            <a href="/treasure/{{treasure.id}}/edit"><button>Edit</button></a> <a href="/delete/{{treasure.id}}"><button>Delete</button></a>
+            <p><span style="font-weight: bold">Daily Rate:</span> ${{treasure.daily_rate}}</p>
+            <p><span style="font-weight: bold">Location:</span> {{treasure.pickup_city}}</p>
+            {% if user.id == treasure.uploader.id %}
+            <a href="/treasure/{{treasure.id}}/edit"><button>Edit</button></a> <a href="/treasure/{{treasure.id}}/delete"><button>Delete</button></a>
+            {% elif my_request %}
+            <h3>Your Request:</h3>
+            {% if messages %}
+                <ul class="message">
+                    {% for message in messages %}
+                    <li{% if message.tags%} class="{{message.tags}}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <p>You requested to borrow this treasure on <span style="font-weight: bold">{{my_request.request_date}}</span>:</p>
+            <ul>
+                <li>You requested to pick up this treasure on <span style="font-weight: bold">{{my_request.pickup_date}}</span> and to borrow it for <span style="font-weight: bold">{{my_request.days}} day(s)</span>.</li>
+            </ul>
+            <p>Request Status: <span style="font-weight: bold">{% if my_request.status == 0 %}Pending{% elif my_request.status == 1 %}Accepted{% elif my_request.status == 2 %}Declined{% else %}Paid{% endif %}</span></p>
+            {% if my_request.status != 3 %}
+            <table>
+                <tr>
+                    <td><a href="/request/{{my_request.id}}/edit"><button>Edit</button></a></td>
+                    <td><a href="/request/{{my_request.id}}/delete"><button>Delete</button></a></td>
+                </tr>
+            </table>
+            {% endif %}
+            {% elif user.id %}
+            <h3>Request to Borrow This Treasure:</h3>
+            {% if messages %}
+                <ul class="message">
+                    {% for message in messages %}
+                    <li{% if message.tags%} class="{{message.tags}}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <form action="/request/{{treasure.id}}/" method="post">
+                {% csrf_token %}
+                <table>
+                    <tr>
+                        <td>How many days would you like to borrow this treasure for?</td>
+                    </tr>
+                    <tr>
+                        <td><input type="number" name="days" id="days" value="1"></td>
+                    </tr>
+                    <tr>
+                        <td>When do you want to pick this treasure up?</td>
+                    </tr>
+                    <tr>
+                        <td><input type="date" name="pickup_date" id="pickup_date"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="submit" value="Submit Request"></td>
+                    </tr>
+                </table>
+            </form>
+            {% else %}
+            <h3>Request to Borrow This Treasure:</h3>
+            <p>Please <a href="/login">login</a> or <a href="/register">register</a> to request to borrow this treasure.</p>
             {% endif %}
         </div>
     </div>

@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.db import models
 import re
 import bcrypt
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
 
@@ -107,8 +107,8 @@ class TreasureManager(models.Manager):
             errors['name'] = "Your item name is too short."
         if len(postData['desc']) < 1:
             errors['desc'] = "An item description is required."
-        elif len(postData['desc']) < 25:
-            errors['desc'] = "Your item description must be at least 15 characters long."
+        elif len(postData['desc']) < 10:
+            errors['desc'] = "Your item description must be at least 10 characters long."
         if int(float(postData['daily_rate'])) < 1:
             errors['daily_rate'] = "The daily rate can't be less than $1.00."
         # if postData['category'] == "Category":
@@ -121,7 +121,7 @@ class TreasureManager(models.Manager):
             errors['pickup_city'] = "A pickup city is required."
         elif len(postData['pickup_city']) < 2:
             errors['pickup_city'] = "Your pickup city is too short."
-        if postData['pickup_state'] == "State":
+        if postData['pickup_state'] == "":
             errors['pickup_state'] = "A pickup state is required."
         if len(postData['pickup_zip']) < 1:
             errors['pickup_zip'] = "A pickup zip code is required."
@@ -129,9 +129,13 @@ class TreasureManager(models.Manager):
             errors['pickup_zip'] = "Your pickup zip code must be exactly 5 characters long."
         return errors
     # Create New Treasure
-    def create_treasure(self, postData, user):
+    def create_treasure(self, postData, fileData, user):
         name = postData['name']
         desc = postData['desc']
+        if fileData:
+            primary_img = fileData['primary_img']
+        else:
+           primary_img = 'no-image-available.jpg'
         daily_rate = postData['daily_rate']
         # daily_rate = int(round(float(postData['daily_rate']) * 100))
         # category = postData['category']
@@ -139,12 +143,14 @@ class TreasureManager(models.Manager):
         pickup_city = postData['pickup_city']
         pickup_state = postData['pickup_state']
         pickup_zip = postData['pickup_zip']
-        new_treasure = Treasure.objects.create(name = name, desc = desc, daily_rate = daily_rate, pickup_address = pickup_address, pickup_city = pickup_city, pickup_state = pickup_state, pickup_zip = pickup_zip, uploader = user)
+        new_treasure = Treasure.objects.create(name = name, desc = desc, primary_img = primary_img, daily_rate = daily_rate, pickup_address = pickup_address, pickup_city = pickup_city, pickup_state = pickup_state, pickup_zip = pickup_zip, uploader = user)
         return new_treasure
-    def update_treasure(self, postData, treasure_id):
+    def update_treasure(self, postData, fileData, treasure_id):
         treasure = Treasure.objects.get(id=treasure_id)
         treasure.name = postData['name']
         treasure.desc = postData['desc']
+        if fileData:
+            treasure.primary_img = fileData['primary_img']
         treasure.daily_rate = postData['daily_rate']
         # treasure.category = postData['category']
         treasure.pickup_address = postData['pickup_address']
@@ -156,13 +162,15 @@ class TreasureManager(models.Manager):
 class Treasure(models.Model):
     name = models.CharField(max_length=255)
     desc = models.TextField(max_length=1000)
+    primary_img = models.ImageField()
     daily_rate = models.CharField(max_length=255)
     uploader = models.ForeignKey(User, related_name="treasures")
     pickup_address = models.CharField(max_length=255, default="")
     pickup_city = models.CharField(max_length=255, default="")
     pickup_state = models.CharField(max_length=2, default="")
     pickup_zip = models.SmallIntegerField(default=0)
-    status = models.SmallIntegerField(default=0) # 0 = available, 1 = unavailable
+    # status = models.SmallIntegerField(default=0)
+    # STATUS: 0 = available now, 1 = unavailable now
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = TreasureManager()
@@ -199,64 +207,81 @@ class RequestManager(models.Manager):
     # Add Request Validator
     def request_validation(self, postData):
         errors = {}
-        if postData['days'] < 1:
-            errors['days'] = "You must select how many days you want to borrow this treasure."
-        today_year = int(datetime.today().year)
-        today_month = int(datetime.today().month)
-        today_day = int(datetime.today().day)
-        if int(postData['pickup_year']) < today_year:
-            errors['pickup_date'] = "You must select a future date for pickup."
-        elif int(postData['pickup_year']) == today_year and int(postData['pickup_month']) < today_month:
-            errors['pickup_date'] = "You must select a future date for pickup."
-        elif int(postData['pickup_month']) == today_month and int(postData['pickup_day']) < today_day:
-            errors['pickup_date'] = "You must select a future date for pickup."
+        today = datetime.today().date()
+        if not postData['pickup_date']:
+            errors['pickup_date'] = "You must select a pickup date."
+        else:
+            pickup_date = datetime.strptime(postData['pickup_date'],'%Y-%m-%d').date()
+            if today > pickup_date:
+                errors['pickup_date'] = "You entered a pickup date that was in the past."
+        if int(postData['days']) < 1:
+            errors['days'] = "You cannot borrow an item for less than a day."
         return errors
     # Create New Request
     def create_request(self, postData, treasure_id, user_id):
-        days = postData['days']
-        amount = (Treasure.objects.get(id = treasure_id).daily_rate) * days
-        requester = User.objects.get(id = user_id)
+        days = int(postData['days']) * 1.00
         treasure = Treasure.objects.get(id = treasure_id)
-        pickup_date = date(postData['pickup_year'], postData['pickup_month'], postData['pickup_day'])
-        new_request = Request.objects.create(days = days, amount = amount, requester = requester, treasure = treasure, pickup_date = pickup_date)
-        return new_request
-    def add_token(self, postData):
-        Request.objects.get(id=postData['request_id']).add(stripe_token = postData['stripeToken'])
+        amount = "%.2f" % round(float(treasure.daily_rate) * days,2)
+        requester = User.objects.get(id = user_id)
+        pickup_date = postData['pickup_date']
+        Request.objects.create(days = days, amount = amount, requester = requester, treasure = treasure, pickup_date = pickup_date)
+    def update_request(self, postData, request_id):
+        this_request = Request.objects.get(id=request_id)
+        treasure = this_request.treasure
+        this_request.days = int(postData['days']) * 1.00
+        this_request.amount = "%.2f" % round(float(treasure.daily_rate) * this_request.days,2)
+        this_request.pickup_date = postData['pickup_date']
+        this_request.save()
+    def accept_request(self, request_id):
+        this_request = Request.objects.get(id=request_id)
+        this_request.status = 1
+        this_request.save()
+    def decline_request(self, request_id):
+        this_request = Request.objects.get(id=request_id)
+        this_request.status = 2
+        this_request.save()
+    def cancel_request(self, request_id):
+        this_request = Request.objects.get(id=request_id)
+        this_request.status = 0
+        this_request.save()
 
 class Request(models.Model):
-    stripe_token = models.CharField(max_length=255, blank=True)
-    amount = models.PositiveIntegerField()
+    amount = models.CharField(max_length=255)
     days = models.PositiveIntegerField()
     requester = models.ForeignKey(User, related_name="requests")
     treasure = models.ForeignKey(Treasure, related_name="requests")
     request_date = models.DateField(auto_now=True)
     pickup_date = models.DateField()
     status = models.SmallIntegerField(default = 0)
-    # STATUS: 0 = Pending, 1 = Accepted, 2 = Declined
+    # STATUS: 0 = Pending, 1 = Accepted, 2 = Declined, 3 = Paid
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = RequestManager()
 
 class OrderManager(models.Manager):
     # Create New Order
-    def create_order(self, postData, borrowData):
-        amount = borrowData['amount']
-        days = borrowData['days']
-        requester = borrowData['requester']
-        treasure = borrowData['treasure']
-        pickup_date = borrowData['pickup_date']
-        new_order = Order.objects.create(amount = amount, days = days, requester = requester, treasure = treasure, pickup_date = pickup_date)
+    def create_order(self, postData, this_request):
+        amount = int(round(float(this_request.amount) * 100))
+        days = this_request.days
+        renter = this_request.requester
+        treasure = this_request.treasure
+        pickup_date = this_request.pickup_date
+        return_date = pickup_date+timedelta(days=days)
+        new_order = Order.objects.create(amount = amount, days = days, renter = renter, treasure = treasure, pickup_date = pickup_date, return_date = return_date)
         return new_order
     def add_token(self, addData):
         Order.objects.get(id=addData['order_id']).add(stripe_token = addData['stripeToken'])
 
 class Order(models.Model):
-    stripe_token = models.CharField(max_length=255, default="Pending")
+    charge_id = models.CharField(max_length=255, blank=True)
     amount = models.PositiveIntegerField()
     days = models.PositiveIntegerField()
     renter = models.ForeignKey(User, related_name="orders")
-    treasure = models.OneToOneField(Treasure)
+    treasure = models.ForeignKey(Treasure, related_name="orders")
     pickup_date = models.DateField()
+    return_date = models.DateField(default= datetime.now())
+    status = models.SmallIntegerField(default = 0)
+    # STATUS: 0 = Paid, 1 = With Renter, 2 = Cancelled by Renter, 3 = Cancelled by Uploader, 4 = Finalized
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = OrderManager()
