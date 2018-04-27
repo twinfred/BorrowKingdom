@@ -1,39 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{treasure.name}} Requests | Borrow Kingdom</title>
+    <link rel="stylesheet" href="{% static 'rent_treasures/css/main.css' %}">
 </head>
 <body>
-    <div id="wrapper">
-        <div id="nav-bar">
-            <div class="nav-logo">Borrow Kingdom Logo</div>
-            <ul class="nav-right">
+    <div id="wrapper" class="border-box">
+        <div id="nav-bar" class="border-box">
+            <div class="nav-logo border-box"><a href="/"><img src="/media/borrow_kingdom-logo.png" alt=""></a></div>
+            <ul class="top-nav">
                 <li class="nav-item-right"><a href="/">Browse Treasures</a></li>
+                {% if request.session.user_id %}
                 <li class="nav-item-right"><a href="/dashboard">Dashboard</a></li>
                 <li class="nav-item-right"><a href="/logout">Log Out</a></li>
+                {% elif not request.session.user_id %}
+                <li class="nav-item-right"><a href="/login">Login</a></li>
+                <li class="nav-item-right"><a href="/register">Register</a></li>
+                {% endif %}
+                {% if user.user_level == 9 %}<li class="nav-item-right"><a href="/bka">Admin</a></li>{% endif %}
             </ul>
         </div>
         <h1>{{treasure.name}} Requests</h1>
         <h3>Pending Requests</h3>
             {% if pending_requests %}
             <table class="request-table">
-                <tr>
-                    <th>Pickup Date</th>
-                    <th>Days Requested</th>
-                    <th>Value</th>
-                    <th>Actions</th>
-                </tr>
-                {% for request in pending_requests %}
-                <tr>
-                    <td>{{request.pickup_date}}</td>
-                    <td>{{request.days}}</td>
-                    <td>${{request.amount}}</td>
-                    <td><a href="/request/{{request.id}}/accept"><button>Accept</button></a> <a href="/request/{{request.id}}/decline"><button>Decline</button></a></td>
-                </tr>
-                {% endfor %}
+                <thead>
+                    <tr>
+                        <th>Pickup Date</th>
+                        <th>Days Requested</th>
+                        <th>Value</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in pending_requests %}
+                    <tr>
+                        <td>{{request.pickup_date}}</td>
+                        <td>{{request.days}}</td>
+                        <td>${{request.amount}}</td>
+                        <td><a href="/request/{{request.id}}/accept"><button>Accept</button></a> <a href="/request/{{request.id}}/decline"><button>Decline</button></a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
             </table>
             {% else %}
             <p>This item doesn't have any pending requests.</p>
@@ -41,20 +53,24 @@
         <h3>Accepted Requests</h3>
         {% if accepted_requests %}
         <table class="request-table">
-            <tr>
-                <th>Pickup Date</th>
-                <th>Days Requested</th>
-                <th>Value</th>
-                <th>Actions</th>
-            </tr>
-            {% for request in accepted_requests %}
-            <tr>
-                <td>{{request.pickup_date}}</td>
-                <td>{{request.days}}</td>
-                <td>${{request.amount}}</td>
-                <td><a href="/request/{{request.id}}/cancel"><button>Cancel</button></a> <a href="/request/{{request.id}}/decline"><button>Decline</button></a></td>
-            </tr>
-            {% endfor %}
+            <thead>
+                <tr>
+                    <th>Pickup Date</th>
+                    <th>Days Requested</th>
+                    <th>Value</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in accepted_requests %}
+                <tr>
+                    <td>{{request.pickup_date}}</td>
+                    <td>{{request.days}}</td>
+                    <td>${{request.amount}}</td>
+                    <td><a href="/request/{{request.id}}/cancel"><button>Cancel</button></a> <a href="/request/{{request.id}}/decline"><button>Decline</button></a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
         {% else %}
         <p>This item doesn't have any approved requests.</p>
@@ -62,19 +78,23 @@
         <h3>Declined Requests</h3>
         {% if declined_requests %}
         <table class="request-table">
-            <tr>
-                <th>Pickup Date</th>
-                <th>Days Requested</th>
-                <th>Value</th>
-                <th>Actions</th>
-            </tr>
+            <thead>
+                <tr>
+                    <th>Pickup Date</th>
+                    <th>Days Requested</th>
+                    <th>Value</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
             {% for request in declined_requests %}
-            <tr>
-                <td>{{request.pickup_date}}</td>
-                <td>{{request.days}}</td>
-                <td>${{request.amount}}</td>
-                <td><a href="/request/{{request.id}}/accept"><button>Accept</button></a>
-            </tr>
+            <tbody>
+                <tr>
+                    <td>{{request.pickup_date}}</td>
+                    <td>{{request.days}}</td>
+                    <td>${{request.amount}}</td>
+                    <td><a href="/request/{{request.id}}/accept"><button>Accept</button></a>
+                </tr>
+            </tbody>
             {% endfor %}
         </table>
         {% else %}

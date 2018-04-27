@@ -1,19 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{% static 'rent_treasures/css/main.css' %}">
     <title>Document</title>
 </head>
 <body>
-    <div id="wrapper">
-        <div id="nav-bar">
-            <div class="nav-logo">Borrow Kingdom Logo</div>
-            <ul class="nav-right">
+    <div id="wrapper" class="border-box">
+        <div id="nav-bar" class="border-box">
+            <div class="nav-logo border-box"><a href="/"><img src="/media/borrow_kingdom-logo.png" alt=""></a></div>
+            <ul class="top-nav">
                 <li class="nav-item-right"><a href="/">Browse Treasures</a></li>
+                {% if request.session.user_id %}
                 <li class="nav-item-right"><a href="/dashboard">Dashboard</a></li>
                 <li class="nav-item-right"><a href="/logout">Log Out</a></li>
+                {% elif not request.session.user_id %}
+                <li class="nav-item-right"><a href="/login">Login</a></li>
+                <li class="nav-item-right"><a href="/register">Register</a></li>
+                {% endif %}
+                {% if user.user_level == 9 %}<li class="nav-item-right"><a href="/bka">Admin</a></li>{% endif %}
             </ul>
         </div>
         <div id="main-content">

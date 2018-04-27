@@ -1,40 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{% static 'rent_treasures/css/main.css' %}">
     <title>Document</title>
 </head>
 <body>
     <div id="wrapper">
-        <h1>Review Order</h2>
-        {% if messages %}
-            <ul class="message">
-                {% for message in messages %}
-                <li{% if message.tags%} class="{{message.tags}}"{% endif %}>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-        <div class="payment-box">
-            <h3>Order Details</h3>
-            <p><span style="font-weight: bold">Treasure:</span> {{request.treasure.name}}</p>
-            <img src="{{request.treasure.primary_img.url}}" alt="{{request.treasure.name}}" width="300px">
-            <p><span style="font-weight: bold">Cost Per Day:</span> ${{request.treasure.daily_rate}}</p>
-            <p><span style="font-weight: bold">Days Requested:</span> {{request.days}}</p>
-            <p><span style="font-weight: bold">Total Charge:</span> ${{request.amount}}</p>
-            <form action="/checkout/" method="POST">
-                {% csrf_token %}
-                <input type="hidden" name="request_id" value={{request.id}}>
-                <script src="https://checkout.stripe.com/checkout.js"
-                    class="stripe-button"
-                    data-key={{stripe_key}}
-                    data-amount={{stripe_amt}}
-                    data-name="Borrow Kingdom"
-                    data-description="{{request.treasure.name}}"
-                    data-currency="usd">
-                </script>
-            </form>
+        <div id="nav-bar" class="border-box">
+            <div class="nav-logo border-box"><a href="/"><img src="/media/borrow_kingdom-logo.png" alt=""></a></div>
+        <div id="main-content">
+            <h1>Review Order</h2>
+            {% if messages %}
+                <ul class="message">
+                    {% for message in messages %}
+                    <li{% if message.tags%} class="{{message.tags}}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <div class="payment-box">
+                <h3>Order Details</h3>
+                <p><span style="font-weight: bold">Treasure:</span> {{request.treasure.name}}</p>
+                <img src="{{request.treasure.primary_img.url}}" alt="{{request.treasure.name}}" width="300px">
+                <p><span style="font-weight: bold">Cost Per Day:</span> ${{request.treasure.daily_rate}}</p>
+                <p><span style="font-weight: bold">Days Requested:</span> {{request.days}}</p>
+                <p><span style="font-weight: bold">Total Charge:</span> ${{request.amount}}</p>
+                <form action="/checkout/" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="request_id" value={{request.id}}>
+                    <script src="https://checkout.stripe.com/checkout.js"
+                        class="stripe-button"
+                        data-key={{stripe_key}}
+                        data-amount={{stripe_amt}}
+                        data-name="Borrow Kingdom"
+                        data-description="{{request.treasure.name}}"
+                        data-currency="usd">
+                    </script>
+                </form>
+            </div>
         </div>
     </div>
 </body>

@@ -1,2 +1,45 @@
-<h2>Payment Confirmation</h2>
-Thanks for your payment
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{% static 'rent_treasures/css/main.css' %}">
+    <title>Order #{{order.id}} Confirmation | Borrow Kingdom</title>
+</head>
+<body>
+    <div id="wrapper" class="border-box">
+        <div id="nav-bar" class="border-box">
+            <div class="nav-logo border-box"><a href="/"><img src="/media/borrow_kingdom-logo.png" alt=""></a></div>
+            <ul class="top-nav">
+                <li class="nav-item-right"><a href="/">Browse Treasures</a></li>
+                {% if request.session.user_id %}
+                <li class="nav-item-right"><a href="/dashboard">Dashboard</a></li>
+                <li class="nav-item-right"><a href="/logout">Log Out</a></li>
+                {% elif not request.session.user_id %}
+                <li class="nav-item-right"><a href="/login">Login</a></li>
+                <li class="nav-item-right"><a href="/register">Register</a></li>
+                {% endif %}
+                {% if user.user_level == 9 %}<li class="nav-item-right"><a href="/bka">Admin</a></li>{% endif %}
+            </ul>
+        </div>
+        <h1><span style="font-weight: bold">Order Confirmation</span></h1>
+        <div class="add-treasure-box border-box vert-top">
+            <div class="treasure-box border-box vert-top">
+                <img src="{{treasure.primary_img.url}}" alt="{{treasure.name}}">
+                <div class="treasure-info border-box vert-top">
+                    <h2><span style="font-style: italic; font-weight: bold">Order #{{order.id}}</span></h2>
+                    <h3>{{treasure.name}}</h3>
+                    <p><span style="font-weight: bold">Order Total:</span> ${{order_amt}}</p>
+                    <p><span style="font-weight: bold">Pickup Date:</span> {{order.pickup_date}}</p>
+                    <p><span style="font-weight: bold">Return Date:</span> {{order.return_date}}</p>
+                    <h3><span style="font-weight: bold">Item Pickup Location:</span></h3>
+                    <p>{{treasure.pickup_address}}</p>
+                    <p>{{treasure.pickup_city}}, {{treasure.pickup_state}} {{treasure.pickup_zip}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

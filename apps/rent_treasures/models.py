@@ -279,7 +279,7 @@ class Order(models.Model):
     renter = models.ForeignKey(User, related_name="orders")
     treasure = models.ForeignKey(Treasure, related_name="orders")
     pickup_date = models.DateField()
-    return_date = models.DateField(default= datetime.now())
+    return_date = models.DateField()
     status = models.SmallIntegerField(default = 0)
     # STATUS: 0 = Paid, 1 = With Renter, 2 = Cancelled by Renter, 3 = Cancelled by Uploader, 4 = Finalized
     created_at = models.DateTimeField(auto_now_add=True)

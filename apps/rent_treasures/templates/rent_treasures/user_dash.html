@@ -1,162 +1,242 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{% static 'rent_treasures/css/main.css' %}">
     <title>{{user.first_name}}'s Dashboard | Borrow Kingdom</title>
 </head>
 <body>
-    <div id="wrapper">
-        <div id="nav-bar">
-            <div class="nav-logo">Borrow Kingdom Logo</div>
-            <ul class="nav-right">
+    <div id="wrapper" class="border-box">
+        <div id="nav-bar" class="border-box">
+            <div class="nav-logo border-box"><a href="/"><img src="/media/borrow_kingdom-logo.png" alt=""></a></div>
+            <ul class="top-nav">
                 <li class="nav-item-right"><a href="/">Browse Treasures</a></li>
+                {% if request.session.user_id %}
                 <li class="nav-item-right"><a href="/dashboard">Dashboard</a></li>
                 <li class="nav-item-right"><a href="/logout">Log Out</a></li>
+                {% elif not request.session.user_id %}
+                <li class="nav-item-right"><a href="/login">Login</a></li>
+                <li class="nav-item-right"><a href="/register">Register</a></li>
+                {% endif %}
+                {% if user.user_level == 9 %}<li class="nav-item-right"><a href="/bka">Admin</a></li>{% endif %}
             </ul>
         </div>
+        <div id="main-content" class="border-box vert-top">
             <h1>{{user.first_name}}'s Dashboard</h1>
-            <h3>My Upcoming Borrows</h3>
-            {% if my_upcoming_orders %}
-            <table class="request-table">
-                <tr>
-                    <th>Treasure</th>
-                    <th>Name</th>
-                    <th>Pickup Date</th>
-                    <th>Return Date</th>
-                </tr>
-                {% for order in my_upcoming_orders %}
-                <tr>
-                    <td><a href="/treasure/{{order.treasure.id}}"><img src="{{order.treasure.primary_img.url}}" alt="{{order.treasure.name}}" width="60px"></a></td>
-                    <td><a href="/treasure/{{order.treasure.id}}">{{order.treasure.name}}</a></td>
-                    <td>{{order.pickup_date}}</td>
-                    <td>{{order.return_date}}</td>
-                </tr>
-                {% endfor %}
-            </table>
-            {% else %}
-            <p>You don't have any upcoming borrows.</p>
-            {% endif %}
-            <h3>Treaures I'm Currently Borrowing</h3>
-            {% if treasures_borrowing %}
-            <table class="request-table">
-                <tr>
-                    <th>Treasure</th>
-                    <th>Name</th>
-                    <th>Pickup Date</th>
-                    <th>Return Date</th>
-                </tr>
-                {% for order in treasures_borrowing %}
-                <tr>
-                    <td><a href="/treasure/{{order.treasure.id}}"><img src="{{order.treasure.primary_img.url}}" alt="{{order.treasure.name}}" width="60px"></a></td>
-                    <td><a href="/treasure/{{order.treasure.id}}">{{order.treasure.name}}</a></td>
-                    <td>{{order.pickup_date}}</td>
-                    <td>{{order.return_date}}</td>
-                </tr>
-                {% endfor %}
-            </table>
-            {% else %}
-            <p>You haven't made any requests yet.</p>
-            {% endif %}
-            <h3>My Borrow Requests</h3>
-            {% if my_requests %}
-            <table class="request-table">
-                <tr>
-                    <th>Treasure</th>
-                    <th>Name</th>
-                    <th>Requested Pickup Date</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-                {% for request in my_requests %}
-                <tr>
-                    <td><a href="/treasure/{{request.treasure.id}}"><img src="{{request.treasure.primary_img.url}}" alt="{{request.treasure.name}}" width="60px"></a></td>
-                    <td><a href="/treasure/{{request.treasure.id}}">{{request.treasure.name}}</a></td>
-                    <td>{{request.pickup_date}}</td>
-                    <td>{% if request.status == 0 %}Pending{% elif request.status == 1 %}<span style="color: green">Accepted</span>{% elif request.status == 2 %}<span style="color: red">Declined</span>{% endif %}</td>
-                    <td>{% if request.status == 1 %}<a href="/request/{{request.id}}/pay"><button>Pay</button></a> {% endif %}<a href="/request/{{request.id}}/edit"><button>Edit</button></a> <a href="/request/{{request.id}}/delete"><button>Delete</button></a></td>
-                </tr>
-                {% endfor %}
-            </table>
-            {% else %}
-            <p>You haven't made any requests yet.</p>
-            {% endif %}
-            <h3>Upcoming Pickups</h3>
-            {% if upcoming_pickups %}
-            <table class="request-table">
-                <tr>
-                    <th>Treasure</th>
-                    <th>Name</th>
-                    <th>Pickup Date</th>
-                    <th>Return Date</th>
-                    <th>Actions</th>
-                </tr>
-                {% for order in upcoming_pickups %}
-                <tr>
-                    <td><a href="/treasure/{{order.treasure.id}}"><img src="{{order.treasure.primary_img.url}}" alt="{{order.treasure.name}}" width="60px"></a></td>
-                    <td><a href="/treasure/{{order.treasure.id}}">{{order.treasure.name}}</a></td>
-                    <td>{{order.pickup_date}}</td>
-                    <td>{{order.return_date}}</td>
-                    <td><a href="/order/{{order.id}}/pickup"><button>Checkout</button></a></td>
-                </tr>
-                {% endfor %}
-            </table>
-            {% else %}
-            <p>You don't have any upcoming pickups right now.</p>
-            {% endif %}
-            <h3>My Treasures Being Borrowed</h3>
-            {% if borrowed_treasures %}
-            <table class="request-table">
-                <tr>
-                    <th>Treasure</th>
-                    <th>Name</th>
-                    <th>Pickup Date</th>
-                    <th>Return Date</th>
-                    <th>Actions</th>
-                </tr>
-                {% for order in borrowed_treasures %}
-                <tr>
-                    <td><a href="/treasure/{{order.treasure.id}}"><img src="{{order.treasure.primary_img.url}}" alt="{{order.treasure.name}}" width="60px"></a></td>
-                    <td><a href="/treasure/{{order.treasure.id}}">{{order.treasure.name}}</a></td>
-                    <td>{{order.pickup_date}}</td>
-                    <td>{{order.return_date}}</td>
-                    <td><a href="/order/{{order.id}}/finalize"><button>Check Back In</button></a></td>
-                </tr>
-                {% endfor %}
-            </table>
-            {% else %}
-            <p>You haven't made any requests yet.</p>
-            {% endif %}
-            <div class="dash-table">
-            <h3>My Treasures</h3>
-            {% if my_treasures %}
-            <table class="treasure-table">
-                <tr>
-                    <th>Treasure</th>
-                    <th>Name</th>
-                    <th>Daily Rate</th>
-                    <th>Pending Requests</th>
-                    <th>Completed Requests</th>
-                    <th>Actions</th>
-                </tr>
-                {% for treasure in my_treasures %}
-                <tr>
-                    <td><a href="/treasure/{{treasure.id}}"><img src="{{treasure.primary_img.url}}" alt="{{treasure.name}}" width="60px"></a></td>
-                    <td><a href="/treasure/{{treasure.id}}">{{treasure.name}}</a></td>
-                    <td>${{treasure.daily_rate}}</td>
-                    <td>{% if treasure.requests.all|length == 0 %}0{% else %}<a href="/treasure/{{treasure.id}}/requests"><button>{{treasure.requests.all|length}}</button></a>{% endif %}</td>
-                    <td>{% if treasure.orders.all|length == 0 %}0{% else %}<button>{{treasure.orders.all|length}}</button>{% endif %}</td>
-                    <td><a href="/treasure/{{treasure.id}}/edit"><button>Edit</button></a> <a href="/treasure/{{treasure.id}}/delete"><button>Delete</button></a></td>
-                </tr>
-                {% endfor %}
-            </table>
-            {% else %}
-            <p>You don't have any treasures.</p>
-            {% endif %}
-            <a href="/treasure/new"><button>Add Treasure</button></a>
+            <div id="dash-menu" class=" border-box vert-top">
+                <h3>Menu</h3>
+                <div class="dash-menu-items border-box vert-top">
+                    <ul>
+                        <li>
+                            <table>
+                                <tr>
+                                    <td>Items With Pending Requests:</td>
+                                    {% if my_treasure_requests != 0 %}<td class="requests-pending" class="border-box vert-top">{% else %}<td></td>{% endif %}{% if my_treasure_requests == 0%}0{%else%}<span class="requests-pending">{{my_treasure_requests}}</span>{%endif%}</td>
+                                </tr>
+                            </table>
+                        </li>
+                        <li>
+                            <table>
+                                <tr>
+                                    <td>Approved Borrows:</td>
+                                    {% if my_approved_borrows != 0 %}<td class="approved-borrows" class="border-box vert-top">{% else %}<td>{% endif %}{% if my_approved_borrows == 0%}0{%else%}<span class="approved-borrows">{{my_approved_borrows}}</span>{%endif%}</td>
+                                </tr>
+                            </table>
+                        </li>
+                        <li><a href="/treasure/new">Add Treasure</a></li>
+                        <li><a href="/user/{{user.id}}/delete">Delete My Account</a></li>
+                    </ul>
+                </div>
             </div>
-        <div class="dash-table">
+            <div id="dash-tables" class="border-box vert-top">
+                <div class="dash-borrow-box border-box vert-top">
+                    <h3>My Treasures</h3>
+                    <div class="dash-box-content border-box vert-top">
+                        {% if my_treasures %}
+                        <table class="treasure-table">
+                            <thead>
+                                <tr>
+                                    <th>Treasure</th>
+                                    <th>Name</th>
+                                    <th>Daily Rate</th>
+                                    <th>Pending Requests</th>
+                                    <th>Completed Requests</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for treasure in my_treasures %}
+                                <tr>
+                                    <td><a href="/treasure/{{treasure.id}}"><img src="{{treasure.primary_img.url}}" alt="{{treasure.name}}" width="60px"></a></td>
+                                    <td><a href="/treasure/{{treasure.id}}">{{treasure.name}}</a></td>
+                                    <td>${{treasure.daily_rate}}</td>
+                                    <td>{% if treasure.requests.all|length == 0 %}0{% else %}<a href="/treasure/{{treasure.id}}/requests" ><button style="font-weight: bold; color: white; background-color: red">{{treasure.requests.all|length}}</button></a>{% endif %}</td>
+                                    <td>{% if treasure.orders.all|length == 0 %}0{% else %}{{treasure.orders.all|length}}{% endif %}</td>
+                                    <td><a href="/treasure/{{treasure.id}}/edit"><button>Edit</button></a> <a href="/treasure/{{treasure.id}}/delete"><button>Delete</button></a></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>You don't have any treasures.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="dash-borrow-box border-box vert-top">
+                    <h3>My Borrow Requests</h3>
+                    <div class="dash-box-content border-box vert-top">
+                        {% if my_requests %}
+                        <table class="request-table">
+                            <thead>
+                                <tr>
+                                    <th>Treasure</th>
+                                    <th>Name</th>
+                                    <th>Requested Pickup Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in my_requests %}
+                                <tr>
+                                    <td><a href="/treasure/{{request.treasure.id}}"><img src="{{request.treasure.primary_img.url}}" alt="{{request.treasure.name}}" width="60px"></a></td>
+                                    <td><a href="/treasure/{{request.treasure.id}}">{{request.treasure.name}}</a></td>
+                                    <td>{{request.pickup_date}}</td>
+                                    <td>{% if request.status == 0 %}Pending{% elif request.status == 1 %}<span style="color: green">Accepted</span>{% elif request.status == 2 %}<span style="color: red">Declined</span>{% endif %}</td>
+                                    <td>{% if request.status == 1 %}<a href="/request/{{request.id}}/pay"><button class="pay-btn" style="background-color: green; color: white; font-weight: bold">Pay</button></a> {% endif %}<a href="/request/{{request.id}}/edit"><button>Edit</button></a> <a href="/request/{{request.id}}/delete"><button>Delete</button></a></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>You haven't made any requests yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="dash-borrow-box border-box vert-top">
+                    <h3>My Upcoming Borrows</h3>
+                    <div class="dash-box-content border-box vert-top">
+                        {% if my_upcoming_orders %}
+                        <table class="request-table">
+                            <thead>
+                                <tr>
+                                    <th>Treasure</th>
+                                    <th>Name</th>
+                                    <th>Pickup Date</th>
+                                    <th>Return Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in my_upcoming_orders %}
+                                <tr>
+                                    <td><a href="/treasure/{{order.treasure.id}}"><img src="{{order.treasure.primary_img.url}}" alt="{{order.treasure.name}}" width="60px"></a></td>
+                                    <td><a href="/treasure/{{order.treasure.id}}">{{order.treasure.name}}</a></td>
+                                    <td>{{order.pickup_date}}</td>
+                                    <td>{{order.return_date}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>You don't have any upcoming borrows.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="dash-borrow-box border-box vert-top">
+                    <h3>Treaures I'm Currently Borrowing</h3>
+                    <div class="dash-box-content border-box vert-top">
+                        {% if treasures_borrowing %}
+                        <table class="request-table">
+                            <thead>
+                                <tr>
+                                    <th>Treasure</th>
+                                    <th>Name</th>
+                                    <th>Pickup Date</th>
+                                    <th>Return Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in treasures_borrowing %}
+                                <tr>
+                                    <td><a href="/treasure/{{order.treasure.id}}"><img src="{{order.treasure.primary_img.url}}" alt="{{order.treasure.name}}" width="60px"></a></td>
+                                    <td><a href="/treasure/{{order.treasure.id}}">{{order.treasure.name}}</a></td>
+                                    <td>{{order.pickup_date}}</td>
+                                    <td>{{order.return_date}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>You haven't made any requests yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="dash-borrow-box border-box vert-top">
+                    <h3>Upcoming Pickups</h3>
+                    <div class="dash-box-content border-box vert-top">
+                        {% if upcoming_pickups %}
+                        <table class="request-table">
+                            <thead>
+                                <tr>
+                                    <th>Treasure</th>
+                                    <th>Name</th>
+                                    <th>Pickup Date</th>
+                                    <th>Return Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in upcoming_pickups %}
+                                <tr>
+                                    <td><a href="/treasure/{{order.treasure.id}}"><img src="{{order.treasure.primary_img.url}}" alt="{{order.treasure.name}}" width="60px"></a></td>
+                                    <td><a href="/treasure/{{order.treasure.id}}">{{order.treasure.name}}</a></td>
+                                    <td>{{order.pickup_date}}</td>
+                                    <td>{{order.return_date}}</td>
+                                    <td><a href="/order/{{order.id}}/pickup"><button>Check Out</button></a></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>You don't have any upcoming pickups right now.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="dash-borrow-box border-box vert-top">
+                    <h3>My Treasures Being Borrowed</h3>
+                    <div class="dash-box-content border-box vert-top">
+                        {% if borrowed_treasures %}
+                        <table class="request-table">
+                            <thead>
+                                <tr>
+                                    <th>Treasure</th>
+                                    <th>Name</th>
+                                    <th>Pickup Date</th>
+                                    <th>Return Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in borrowed_treasures %}
+                                <tr>
+                                    <td><a href="/treasure/{{order.treasure.id}}"><img src="{{order.treasure.primary_img.url}}" alt="{{order.treasure.name}}" width="60px"></a></td>
+                                    <td><a href="/treasure/{{order.treasure.id}}">{{order.treasure.name}}</a></td>
+                                    <td>{{order.pickup_date}}</td>
+                                    <td>{{order.return_date}}</td>
+                                    <td><a href="/order/{{order.id}}/finalize"><button>Check In</button></a></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>You haven't made any requests yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </body>

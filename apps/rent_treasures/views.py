@@ -5,7 +5,7 @@ from models import User, UserManager, Treasure, TreasureManager, Request, Reques
 from django.contrib import messages
 from Borrowdom import settings
 import stripe
-from django.db.models import Q
+from django.db.models import Q, Count
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 # Admin URLs
@@ -16,7 +16,13 @@ def admin(request):
     if user.user_level != 9:
         return redirect('/dashboard')
     else:
-        return HttpResponse("Admin Portal Coming Soon")
+        context = {
+            'treasures': Treasure.objects.all(),
+            'users': User.objects.all(),
+            'user': User.objects.get(id=request.session['user_id']),
+            'orders': Order.objects.all().order_by('created_at'),
+        }
+        return render(request, 'rent_treasures/admin_dash.html', context)
 
 # User-Facing URLs
 def index(request):
@@ -29,7 +35,8 @@ def index(request):
         user = User.objects.get(id=request.session['user_id'])
         context = {
             'recent_treasures': Treasure.objects.all().exclude(uploader = user).order_by('id').reverse()[:4],
-            'available_treasures': Treasure.objects.all().exclude(uploader = user).order_by('?')[:8],
+            'available_treasures': Treasure.objects.all().exclude(uploader = user).order_by('?')[:10],
+            'user': user,
         }
     return render(request, 'rent_treasures/index.html', context)
 
@@ -47,16 +54,18 @@ def dashboard(request):
     if not 'user_id' in request.session:
         return redirect('/')
     user = User.objects.get(id=request.session['user_id'])
-    print Order.objects.filter(Q(status=0)&Q(treasure__uploader=user)).all()
     context = {
         'user': user,
-        'my_treasures': Treasure.objects.filter(uploader=user),
+        'my_treasures': Treasure.objects.filter(uploader=user).annotate(count=Count('requests')).order_by('-count'),
         'upcoming_pickups': Order.objects.filter(Q(status=0)&Q(treasure__uploader=user)).all().order_by('pickup_date'),
         'borrowed_treasures': Order.objects.filter(Q(status=1)&Q(treasure__uploader=user)).all().order_by('return_date'),
         'my_requests': Request.objects.filter(requester=user).exclude(status=3),
         'my_upcoming_orders': user.orders.filter(status=0),
         'treasures_borrowing': user.orders.filter(status=1),
+        'my_treasure_requests': len(Treasure.objects.filter(Q(uploader=user)&Q(requests__status=0))),
+        'my_approved_borrows': len(user.requests.filter(status=1))
     }
+    print context['my_treasure_requests']
     return render(request, 'rent_treasures/user_dash.html', context)
 
 def seller_treasure_add(request):
@@ -81,7 +90,7 @@ def treasure_edit(request, treasure_id):
     if not len(Treasure.objects.filter(id=treasure_id)):
         return redirect('/')
     user = User.objects.get(id=request.session['user_id'])
-    if Treasure.objects.get(id=treasure_id).uploader != user:
+    if Treasure.objects.get(id=treasure_id).uploader != user or Treasure.objects.get(id=treasure_id).uploader != user and user.user_level != 9:
         return redirect('/')
     else:
         context = {
@@ -144,6 +153,8 @@ def payment_conf(request, order_id):
         context = {
             'user': User.objects.get(id=request.session['user_id']),
             'order': Order.objects.get(id=order_id),
+            'order_amt': ("%.2f" % round(int(float(Order.objects.get(id=order_id).amount)/ 100.00),2)),
+            'treasure': Order.objects.get(id=order_id).treasure,
         }
         return render(request, 'rent_treasures/payment_conf.html', context)
 
@@ -202,7 +213,7 @@ def update_treasure(request, treasure_id):
         for tag, error in errors.iteritems():
             messages.error(request, error, extra_tags=tag)
         return redirect('/treasure/{}/edit'.format(treasure_id))
-    elif request.session['user_id'] == uploader_id:
+    elif request.session['user_id'] == uploader_id or User.objects.get(id = request.session['user_id']).user_level != 9 and request.session['user_id'] != uploader_id:
         Treasure.objects.update_treasure(request.POST, request.FILES, treasure_id)
         return redirect('/treasure/{}'.format(treasure_id))
     else:
@@ -276,9 +287,12 @@ def delete(request, treasure_id):
         return redirect('/')
     if Treasure.objects.get(id=treasure_id):
         uploader_id = Treasure.objects.get(id=treasure_id).uploader.id
-    if request.session['user_id'] == uploader_id:
+    if request.session['user_id'] == uploader_id or User.objects.get(id=request.session['user_id']).user_level != 9 and request.session['user_id'] == uploader_id:
         Treasure.objects.get(id=treasure_id).delete()
-        return redirect('/dashboard')
+        if User.objects.get(id=request.session['user_id']).user_level != 9:
+            return redirect('/dashboard')
+        else:
+            return redirect('/bka')
     else:
         return redirect('/')
 
@@ -356,3 +370,18 @@ def finalize_order(request, order_id):
         order.status = 4
         order.save()
         return redirect('/dashboard')
+
+def delete_user(request, user_id):
+    if not 'user_id' in request.session:
+        return redirect('/')
+    if not len(User.objects.filter(id=user_id)):
+        return redirect('/')
+    user = User.objects.get(id=user_id)
+    if request.session['user_id'] != user.id or User.objects.get(id = request.session['user_id']).user_level != 9:
+        return redirect('/')
+    else:
+        user.delete()
+    if User.objects.get(id=request.session['user_id']).user_level != 9:
+        return redirect('/dashboard')
+    else:
+        return redirect('/bka')

@@ -33,5 +33,6 @@ urlpatterns = [
     url(r'^request/(?P<request_id>\d+)/cancel/$', views.cancel_request),
     url(r'^order/(?P<order_id>\d+)/pickup/$', views.pickup_order),
     url(r'^order/(?P<order_id>\d+)/finalize/$', views.finalize_order),
+    url(r'user/(?P<order_id>\d+)/delete/$', views.delete_user),
     # Catch-All
 ]
