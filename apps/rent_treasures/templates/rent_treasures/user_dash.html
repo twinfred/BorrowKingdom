@@ -15,7 +15,7 @@
             <ul class="top-nav">
                 <li class="nav-item-right"><a href="/">Browse Treasures</a></li>
                 {% if request.session.user_id %}
-                <li class="nav-item-right"><a href="/dashboard">Dashboard</a></li>
+                <li class="naFv-item-right"><a href="/dashboard">Dashboard</a></li>
                 <li class="nav-item-right"><a href="/logout">Log Out</a></li>
                 {% elif not request.session.user_id %}
                 <li class="nav-item-right"><a href="/login">Login</a></li>
@@ -30,11 +30,12 @@
                 <h3>Menu</h3>
                 <div class="dash-menu-items border-box vert-top">
                     <ul>
+                        <li><a href="/treasure/new"><button class="add-treasure-btn">Add Treasure</button></a></li>
                         <li>
                             <table>
                                 <tr>
-                                    <td>Items With Pending Requests:</td>
-                                    {% if my_treasure_requests != 0 %}<td class="requests-pending" class="border-box vert-top">{% else %}<td></td>{% endif %}{% if my_treasure_requests == 0%}0{%else%}<span class="requests-pending">{{my_treasure_requests}}</span>{%endif%}</td>
+                                    <td>New Treasure Requests:</td>
+                                    {% if my_treasure_requests != 0 %}<td class="requests-pending border-box">{% else %}<td></td>{% endif %}{% if my_treasure_requests == 0%}0{%else%}<span class="requests-pending">{{my_treasure_requests}}</span>{%endif%}</td>
                                 </tr>
                             </table>
                         </li>
@@ -42,11 +43,10 @@
                             <table>
                                 <tr>
                                     <td>Approved Borrows:</td>
-                                    {% if my_approved_borrows != 0 %}<td class="approved-borrows" class="border-box vert-top">{% else %}<td>{% endif %}{% if my_approved_borrows == 0%}0{%else%}<span class="approved-borrows">{{my_approved_borrows}}</span>{%endif%}</td>
+                                    {% if my_approved_borrows != 0 %}<td class="approved-borrows border-box">{% else %}<td>{% endif %}{% if my_approved_borrows == 0%}0{%else%}<span class="approved-borrows">{{my_approved_borrows}}</span>{%endif%}</td>
                                 </tr>
                             </table>
                         </li>
-                        <li><a href="/treasure/new">Add Treasure</a></li>
                         <li><a href="/user/{{user.id}}/delete">Delete My Account</a></li>
                     </ul>
                 </div>

@@ -25,7 +25,7 @@
             </ul>
         </div>
         <div class="add-treasure-box">
-            <h3>Add A New Treasure</h3>
+            <h3>Add New Treasure</h3>
             {% if messages %}
                 <ul class="message">
                     {% for message in messages %}
@@ -33,47 +33,51 @@
                     {% endfor %}
                 </ul>
             {% endif %}
-            <form action="/add_treasure/" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <table class="add-treasure-table">
-                    <tr>
-                        <td><input type="text" name="name" id="name" placeholder="Treasure Name"></td>
-                    </tr>
-                    <tr>
-                        <td><textarea name="desc" id="desc" cols="30" rows="6" placeholder="Treasure description"></textarea></td>
-                    </tr>
-                    <tr>
-                        <td>Primary Image</td>
-                    </tr>
-                    <tr>
-                        <td><input type="file" accept="image/*" name="primary_img" id="primary_img"></td>
-                    </tr>
-                    <tr>
-                        <td>Daily Rate in US Dollars:</td>
-                    </tr>
-                    <tr>
-                        <td><input type="number" step="0.01" name="daily_rate" id="daily_rate" value="1.00" pattern=".{4,}"></td>
-                    </tr>
-                    <tr>
-                        <td>Where is this treasure located?</td>
-                    </tr>
-                    <tr>
-                        <td><input type="text" name="pickup_address" id="pickup_address" placeholder="Address"></td>
-                    </tr>
-                    <tr>
-                        <td><input type="text" name="pickup_city" id="pickup_city" placeholder="City"></td>
-                    </tr>
-                    <tr>
-                        <td><input type="text" name="pickup_state" id="pickup_state" placeholder="State" maxlength="2"></td>
-                    </tr>
-                    <tr>
-                        <td><input type="text" name="pickup_zip" id="pickup_zip" placeholder="Zip Code" maxlength="5"></td>
-                    </tr>
-                    <tr>
-                        <td><input type="submit" value="Add"></td>
-                    </tr>
-                </table>
-            </form>
+            <div class="form-box">
+                <form action="/add_treasure/" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <table class="forms">
+                        <tr class="forms">
+                            <td class="forms"><input type="text" name="name" id="name" placeholder="Treasure Name"></td>
+                        </tr>
+                        <tr class="forms">
+                            <td class="forms"><textarea name="desc" id="desc" cols="30" rows="6" placeholder="Treasure description"></textarea></td>
+                        </tr>
+                        <tr class="forms">
+                            <td class="forms">Upload a Primary Image (Optional):</td>
+                        </tr>
+                        <tr class="forms">
+                            <td class="forms"><input type="file" accept="image/*" name="primary_img" id="primary_img"></td>
+                        </tr>
+                        <tr class="forms">
+                            <td class="forms">Daily Rate in US Dollars:</td>
+                        </tr>
+                        <tr class="forms">
+                            <td class="forms"><input type="number" step="0.01" name="daily_rate" id="daily_rate" value="1.00" pattern=".{4,}"></td>
+                        </tr>
+                    </table>
+                    <table class="forms">
+                        <tr class="forms">
+                            <td class="forms">Where is this treasure located?</td>
+                        </tr>
+                        <tr class="forms">
+                            <td class="forms"><input type="text" name="pickup_address" id="pickup_address" placeholder="Address"></td>
+                        </tr>
+                        <tr class="forms">
+                            <td class="forms"><input type="text" name="pickup_city" id="pickup_city" placeholder="City"></td>
+                        </tr>
+                        <tr class="forms">
+                            <td class="forms"><input type="text" name="pickup_state" id="pickup_state" placeholder="State" maxlength="2"></td>
+                        </tr>
+                        <tr class="forms">
+                            <td class="forms"><input type="text" name="pickup_zip" id="pickup_zip" placeholder="Zip Code" maxlength="5"></td>
+                        </tr>
+                    </table>
+                    <div class="form-btn">
+                        <input class="form-submit-btn" type="submit" value="Add">
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </body>
