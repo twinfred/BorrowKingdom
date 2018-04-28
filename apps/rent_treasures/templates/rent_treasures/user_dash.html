@@ -9,6 +9,7 @@
     <title>{{user.first_name}}'s Dashboard | Borrow Kingdom</title>
 </head>
 <body>
+    <div id="notif-bar">This site is in BETA Testing Mode and transations are not actually processed. For questions, please message <a href="https://twitter.com/TimWinfred">@TimWinfred</a> on Twitter.</div>
     <div id="wrapper" class="border-box">
         <div id="nav-bar" class="border-box">
             <div class="nav-logo border-box"><a href="/"><img src="/media/borrow_kingdom-logo.png" alt=""></a></div>
@@ -34,8 +35,8 @@
                         <li>
                             <table>
                                 <tr>
-                                    <td>New Treasure Requests:</td>
-                                    {% if my_treasure_requests != 0 %}<td class="requests-pending border-box">{% else %}<td></td>{% endif %}{% if my_treasure_requests == 0%}0{%else%}<span class="requests-pending">{{my_treasure_requests}}</span>{%endif%}</td>
+                                    <td>New Requests:</td>
+                                    {% if my_treasure_requests != 0 %}<td class="requests-pending border-box">{% else %}<td>{% endif %}{% if my_treasure_requests == 0%}0{%else%}<span class="requests-pending">{{my_treasure_requests}}</span>{%endif%}</td>
                                 </tr>
                             </table>
                         </li>
